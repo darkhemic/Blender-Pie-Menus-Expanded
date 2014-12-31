@@ -24,4 +24,18 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
+==========================
+
+This addon doesn't require Antony Riakiotakis's Offical Blender Pie Menu addon to be running because it includes that code.
+
+hotkeys for using the pie menu system
+
+Tab = Select Mode Widget
+Ctrl + Shift + Tab = Snapping Widget
+Q = View Widget
+Z = View Method Widget
+. = Pivot Method Widget
+Space = Translation Manipulator Widget
+Space + Ctrl = Edit Mode Selection and Additional Tools Widget
+
 
