@@ -31,11 +31,17 @@ This addon doesn't require Antony Riakiotakis's Offical Blender Pie Menu addon t
 hotkeys for using the pie menu system
 
 Tab = Select Mode Widget
+
 Ctrl + Shift + Tab = Snapping Widget
+
 Q = View Widget
+
 Z = View Method Widget
+
 . = Pivot Method Widget
+
 Space = Translation Manipulator Widget
+
 Space + Ctrl = Edit Mode Selection and Additional Tools Widget
 
 
