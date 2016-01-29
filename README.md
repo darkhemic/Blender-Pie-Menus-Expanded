@@ -1,7 +1,7 @@
-Blender-Pie-Menus-Expended
+Blender-Pie-Menus-Expanded
 ==========================
 
-An expended set of pie menus that include controls for mesh editing
+An expanded set of pie menus that include controls for mesh editing
 
 ==========================
 
