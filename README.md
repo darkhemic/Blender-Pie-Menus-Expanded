@@ -40,8 +40,8 @@ Z = View Method Widget
 
 . = Pivot Method Widget
 
-Space = Translation Manipulator Widget
+Space + Ctrl = Translation Manipulator Widget
 
-Space + Ctrl = Edit Mode Selection and Additional Tools Widget
+Space = Edit Mode Selection, once in Edit or Sculpting mode then tools for those modes are viewed/
 
 
