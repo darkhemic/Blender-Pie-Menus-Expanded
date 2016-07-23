@@ -23,7 +23,8 @@
 bl_info = {
     "name": "Pie Menus Expanded",
     "author": "Christopher Williams",
-    "version": (1, 0, 0),
+    "version": (2, 0, 0),
+    "blender": (2, 77, 0),
     "description": "Enable Additional Pie Menus in Blender",
     "category": "User Interface",
 }
@@ -31,12 +32,38 @@ bl_info = {
 import bpy
 from bpy.types import Menu, Operator
 from bpy.props import EnumProperty
+from bl_ui.properties_paint_common import UnifiedPaintPanel
 
 
 
-class VIEW3D_PIE_object_mode(Menu):
-    bl_label = "Mode"
+class VIEW3D_PIE_Tools_System(Menu):
+    bl_label = "Tools"
+    bl_idname = "VIEW3D_PIE_Tools_System"
+    def draw(self, context):
+        layout = self.layout
+   
+        if context.active_object.mode == 'EDIT':
+                pie = layout.menu_pie()
+                pie.operator_enum("mesh.select_mode", "type")
+                pie.operator("wm.call_menu_pie", text="Face Tools", icon='PLUS').name = "VIEW3D_PIE_faces"
+                pie.operator("wm.call_menu_pie", text="Vertex Tools", icon='PLUS').name = "VIEW3D_PIE_vertices"
+                pie.operator("wm.call_menu_pie", text="Edge Tools", icon='PLUS').name = "VIEW3D_PIE_edges"
+        else:
+            if context.active_object.mode == 'SCULPT':
+                pie = layout.menu_pie()
+                pie.operator("wm.call_menu_pie", text="Tan Brushes", icon='BRUSH_SMOOTH').name = "VIEW3D_PIE_Sculpt_Brushes_Tan"
+                pie.operator("wm.call_menu_pie", text="Gray Brushes", icon='BRUSH_CLAY').name = "VIEW3D_PIE_Sculpt_Brushes_Gray"
+                pie.operator("wm.call_menu_pie", text="Red Brushes", icon='BRUSH_GRAB').name = "VIEW3D_PIE_Sculpt_Brushes_Red"
+                #pie.operator("wm.call_menu_pie", text ="Stroke Methods", icon='PLUS').name = "VIEW3D_PIE_Brush_Strokes"
+                #pie.operator("wm.call_menu_pie", text="Curves", icon='PLUS').name = "VIEW3D_PIE_Sculpt_Curves"
+                
+            else:
+                pie = layout.menu_pie()
+                pie.operator_enum("OBJECT_OT_mode_set", "mode")
 
+class VIEW3D_PIE_Mode_Selection(Menu):
+    bl_label = "Mode Selection"
+    bl_idname = "VIEW3D_PIE_Mode_Selection"
     def draw(self, context):
         layout = self.layout
 
@@ -132,20 +159,7 @@ class VIEW3D_PIE_snap(Menu):
         pie.prop(toolsettings, "use_snap")
         
 
-#added from pie_menu_template Select Mode Menu
-class VIEW3D_PIE_select_mode(Menu):
-    bl_label = "Select Mode"
-    bl_idname = "VIEW3D_PIE_select_mode"
-
-    def draw(self, context):
-        layout = self.layout
-
-        pie = layout.menu_pie()
-        pie.operator_enum("mesh.select_mode", "type")
-        pie.operator("wm.call_menu_pie", text="Edge Tools", icon='PLUS').name = "VIEW3D_PIE_edges"
-        pie.operator("wm.call_menu_pie", text="Vertex Tools", icon='PLUS').name = "VIEW3D_PIE_vertices"
-        pie.operator("wm.call_menu_pie", text="Face Tools", icon='PLUS').name = "VIEW3D_PIE_faces"
-        
+     
         
 #new classes to the offical pie Vertex Mode Menu
 class VIEW3D_PIE_vertices(Menu):
@@ -207,7 +221,80 @@ class VIEW3D_PIE_faces(Menu):
         pie.operator("mesh.inset", text="Inset")
         pie.operator("mesh.poke", text="Poke")
         
+class VIEW3D_PIE_Brush_Strokes(Menu):
+    bl_label = "Brush Strokes"
+    bl_idname = "VIEW3D_PIE_Brush_Strokes"
+    def draw(self, context):
+        layout = self.layout
+        
+        settings = UnifiedPaintPanel.paint_settings(context)
+        brush = settings.brush
+        
+        pie = layout.menu_pie()
+        pie.operator_enum("brush", "stroke_method")       
+        
+        
+class VIEW3D_PIE_Sculpt_Curves(Menu):
+    bl_label = "Sculpt Curves"
+    bl_idname = "VIEW3D_PIE_Sculpt_Curves"
 
+    def draw(self, context):
+        layout = self.layout
+        settings = UnifiedPaintPanel.paint_settings(context)
+        brush = settings.brush
+        
+        sculpt_tool = brush.sculpt_tool
+        
+        pie = layout.menu_pie()
+        pie.operator_enum("brush.curve_preset", "shape")         
+        
+        
+        
+class VIEW3D_PIE_Sculpt_Brushes_Gray(Menu):
+    bl_label = "Gray Brushes"
+    bl_idname = "VIEW3D_PIE_Sculpt_Brushes_Gray"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        pie.operator("paint.brush_select", text='Claystrips', icon='BRUSH_CLAY_STRIPS').sculpt_tool= 'CLAY_STRIPS'
+        pie.operator("paint.brush_select", text='Blob', icon='BRUSH_BLOB').sculpt_tool= 'BLOB'
+        pie.operator("paint.brush_select", text='Layer', icon='BRUSH_LAYER').sculpt_tool= 'LAYER'
+        pie.operator("paint.brush_select", text="Crease", icon='BRUSH_CREASE').sculpt_tool='CREASE'
+        pie.operator("paint.brush_select", text="Clay", icon='BRUSH_CLAY').sculpt_tool='CLAY'
+        pie.operator("paint.brush_select", text='Brush', icon='BRUSH_SCULPT_DRAW').sculpt_tool='DRAW'
+        pie.operator("paint.brush_select", text='Inflate/Deflate', icon='BRUSH_INFLATE').sculpt_tool='INFLATE'
+       
+        
+        
+class VIEW3D_PIE_Sculpt_Brushes_Red(Menu):
+    bl_label = "Red Brushes"
+    bl_idname = "VIEW3D_PIE_Sculpt_Brushes_Red"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        pie.operator("paint.brush_select", text='Twist', icon='BRUSH_ROTATE').sculpt_tool= 'ROTATE'
+        pie.operator("paint.brush_select", text='Nudge', icon='BRUSH_NUDGE').sculpt_tool= 'NUDGE'
+        pie.operator("paint.brush_select", text='Thumb', icon='BRUSH_THUMB').sculpt_tool= 'THUMB'
+        pie.operator("paint.brush_select", text='Snakehook', icon='BRUSH_SNAKE_HOOK').sculpt_tool= 'SNAKE_HOOK'
+        pie.operator("paint.brush_select", text='Grab', icon='BRUSH_GRAB').sculpt_tool='GRAB'
+        
+        
+class VIEW3D_PIE_Sculpt_Brushes_Tan(Menu):
+    bl_label = "Tan Brushes"
+    bl_idname = "VIEW3D_PIE_Sculpt_Brushes_Tan"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        pie.operator("paint.brush_select", text='Scrape/Peaks', icon='BRUSH_SCRAPE').sculpt_tool= 'SCRAPE'
+        pie.operator("paint.brush_select", text='Fill/Deepen', icon='BRUSH_FILL').sculpt_tool='FILL'
+        pie.operator("paint.brush_select", text='Smooth', icon='BRUSH_SMOOTH').sculpt_tool= 'SMOOTH'
+        pie.operator("paint.brush_select", text='Pinch/Magnify', icon='BRUSH_PINCH').sculpt_tool= 'PINCH'
+        pie.operator("paint.brush_select", text='Flatten', icon='BRUSH_FLATTEN').sculpt_tool='FLATTEN'
+        pie.operator("paint.brush_select", text='Mask', icon='BRUSH_MASK').sculpt_tool='MASK'          
+                
 addon_keymaps = []
 
 
@@ -215,16 +302,21 @@ def register():
     bpy.utils.register_class(VIEW3D_manipulator_set)
 
     #register menus
-    bpy.utils.register_class(VIEW3D_PIE_object_mode)
+    bpy.utils.register_class(VIEW3D_PIE_Tools_System)
+    bpy.utils.register_class(VIEW3D_PIE_Mode_Selection)
     bpy.utils.register_class(VIEW3D_PIE_view)
     bpy.utils.register_class(VIEW3D_PIE_shade)
     bpy.utils.register_class(VIEW3D_PIE_manipulator)
     bpy.utils.register_class(VIEW3D_PIE_pivot)
     bpy.utils.register_class(VIEW3D_PIE_snap)
-    bpy.utils.register_class(VIEW3D_PIE_select_mode)
     bpy.utils.register_class(VIEW3D_PIE_vertices)
     bpy.utils.register_class(VIEW3D_PIE_edges)
     bpy.utils.register_class(VIEW3D_PIE_faces)
+    bpy.utils.register_class(VIEW3D_PIE_Sculpt_Brushes_Gray)
+    bpy.utils.register_class(VIEW3D_PIE_Sculpt_Brushes_Red)
+    bpy.utils.register_class(VIEW3D_PIE_Sculpt_Brushes_Tan)
+    bpy.utils.register_class(VIEW3D_PIE_Brush_Strokes)
+    bpy.utils.register_class(VIEW3D_PIE_Sculpt_Curves)
     
 
     wm = bpy.context.window_manager
@@ -232,35 +324,39 @@ def register():
     if wm.keyconfigs.addon:
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
-        kmi.properties.name = 'VIEW3D_PIE_object_mode'
+        kmi.properties.name = 'VIEW3D_PIE_Mode_Selection'
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS')
         kmi.properties.name = 'VIEW3D_PIE_shade'
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
         kmi.properties.name = 'VIEW3D_PIE_view'
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True)
         kmi.properties.name = 'VIEW3D_PIE_manipulator'
         kmi = km.keymap_items.new('wm.call_menu_pie', 'PERIOD', 'PRESS')
         kmi.properties.name = 'VIEW3D_PIE_pivot'
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', ctrl=True, shift=True)
         kmi.properties.name = 'VIEW3D_PIE_snap'
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True)
-        kmi.properties.name = 'VIEW3D_PIE_select_mode'
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS')
+        kmi.properties.name = 'VIEW3D_PIE_Tools_System'
         addon_keymaps.append(km)
 
 
 def unregister():
+    bpy.utils.unregister_class(VIEW3D_PIE_Tools_System)
     bpy.utils.unregister_class(VIEW3D_manipulator_set)
-    bpy.utils.unregister_class(VIEW3D_PIE_object_mode)
+    bpy.utils.unregister_class(VIEW3D_PIE_Mode_Selection)
     bpy.utils.unregister_class(VIEW3D_PIE_view)
     bpy.utils.unregister_class(VIEW3D_PIE_shade)
     bpy.utils.unregister_class(VIEW3D_PIE_manipulator)
     bpy.utils.unregister_class(VIEW3D_PIE_pivot)
     bpy.utils.unregister_class(VIEW3D_PIE_snap)
-    bpy.utils.unregister_class(VIEW3D_PIE_select_mode)
     bpy.utils.unregister_class(VIEW3D_PIE_vertices)
     bpy.utils.unregister_class(VIEW3D_PIE_edges)
     bpy.utils.unregister_class(VIEW3D_PIE_faces)
-    
+    bpy.utils.unregister_class(VIEW3D_PIE_Sculpt_Brushes_Gray)
+    bpy.utils.unregister_class(VIEW3D_PIE_Sculpt_Brushes_Red)
+    bpy.utils.unregister_class(VIEW3D_PIE_Sculpt_Brushes_Tan)
+    bpy.utils.unregister_class(VIEW3D_PIE_Brush_Strokes)
+    bpy.utils.unregister_class(VIEW3D_PIE_Sculpt_Curves)
     
 
     wm = bpy.context.window_manager
